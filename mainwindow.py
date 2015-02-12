@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Thu Feb 12 15:22:13 2015
+# Created: Thu Feb 12 16:22:22 2015
 #      by: PyQt5 UI code generator 5.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -22,6 +22,7 @@ class Ui_MainWindow(object):
         self.lineColumn.setFont(font)
         self.lineColumn.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.lineColumn.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.lineColumn.setReadOnly(True)
         self.lineColumn.setObjectName("lineColumn")
         self.hexColumn = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.hexColumn.setGeometry(QtCore.QRect(100, 80, 421, 331))
@@ -30,12 +31,14 @@ class Ui_MainWindow(object):
         self.hexColumn.setFont(font)
         self.hexColumn.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.hexColumn.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.hexColumn.setReadOnly(True)
         self.hexColumn.setObjectName("hexColumn")
         self.textColumn = QtWidgets.QPlainTextEdit(self.centralwidget)
         self.textColumn.setGeometry(QtCore.QRect(520, 80, 221, 331))
         font = QtGui.QFont()
         font.setFamily("Monospace")
         self.textColumn.setFont(font)
+        self.textColumn.setReadOnly(True)
         self.textColumn.setObjectName("textColumn")
         self.actionCombo = QtWidgets.QComboBox(self.centralwidget)
         self.actionCombo.setGeometry(QtCore.QRect(30, 40, 81, 33))
@@ -86,6 +89,12 @@ class Ui_MainWindow(object):
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(70, 10, 41, 19))
         self.label.setObjectName("label")
+        self.contentEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.contentEdit.setGeometry(QtCore.QRect(100, 420, 641, 33))
+        self.contentEdit.setObjectName("contentEdit")
+        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2.setGeometry(QtCore.QRect(40, 430, 60, 19))
+        self.label_2.setObjectName("label_2")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 31))
@@ -128,6 +137,7 @@ class Ui_MainWindow(object):
         self.destCombo.setItemText(0, _translate("MainWindow", "any"))
         self.destPortCombo.setItemText(0, _translate("MainWindow", "any"))
         self.label.setText(_translate("MainWindow", "Packet"))
+        self.label_2.setText(_translate("MainWindow", "Content"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
 

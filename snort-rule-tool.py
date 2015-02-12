@@ -2,6 +2,8 @@
 
 import sys
 from PyQt5 import QtWidgets
+from PyQt5 import QtGui
+from PyQt5 import QtCore
 from mainwindow import Ui_MainWindow
 from scapy.all import *
 
@@ -23,8 +25,10 @@ class Snort(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.show()
         self.index = 0
+        self.defaultFmt = self.ui.hexColumn.currentCharFormat()
         self.ui.packetBox.valueChanged.connect(self.changePacket)
         self.ui.actionOpen.triggered.connect(self.openPCAP)
+        self.ui.contentEdit.textChanged.connect(self.contentChanged)
 
     def changePacket(self):
         self.index = self.ui.packetBox.value() - 1
@@ -68,6 +72,22 @@ class Snort(QtWidgets.QMainWindow):
             self.comboBoxes = [self.ui.srcCombo, self.ui.srcPortCombo, self.ui.destCombo, self.ui.destPortCombo]
             self.ui.packetBox.setRange(1, len(self.packets))
             self.readPacket()
+
+    def contentChanged(self):
+        content = self.ui.contentEdit.text()
+        hexContent = self.ui.hexColumn.toPlainText()
+        cursor = QtGui.QTextCursor(self.ui.hexColumn.document())
+        cursor.setPosition(0, QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(self.ui.hexColumn.document().characterCount() - 1, QtGui.QTextCursor.KeepAnchor)
+        cursor.setCharFormat(self.defaultFmt)
+        if content in hexContent:
+            start = hexContent.index(content)
+            end = len(content) + start
+            fmt = QtGui.QTextCharFormat()
+            fmt.setForeground(QtCore.Qt.red)
+            cursor.setPosition(start, QtGui.QTextCursor.MoveAnchor)
+            cursor.setPosition(end, QtGui.QTextCursor.KeepAnchor)
+            cursor.setCharFormat(fmt)
 
     def clearAll(self):
         for combo in self.comboBoxes:
