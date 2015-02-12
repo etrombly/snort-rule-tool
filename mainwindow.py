@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Feb 10 17:32:14 2015
+# Created: Thu Feb 12 15:22:13 2015
 #      by: PyQt5 UI code generator 5.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -90,10 +90,16 @@ class Ui_MainWindow(object):
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 31))
         self.menubar.setObjectName("menubar")
+        self.menu_File = QtWidgets.QMenu(self.menubar)
+        self.menu_File.setObjectName("menu_File")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.actionOpen = QtWidgets.QAction(MainWindow)
+        self.actionOpen.setObjectName("actionOpen")
+        self.menu_File.addAction(self.actionOpen)
+        self.menubar.addAction(self.menu_File.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -122,4 +128,6 @@ class Ui_MainWindow(object):
         self.destCombo.setItemText(0, _translate("MainWindow", "any"))
         self.destPortCombo.setItemText(0, _translate("MainWindow", "any"))
         self.label.setText(_translate("MainWindow", "Packet"))
+        self.menu_File.setTitle(_translate("MainWindow", "&File"))
+        self.actionOpen.setText(_translate("MainWindow", "Open"))
 

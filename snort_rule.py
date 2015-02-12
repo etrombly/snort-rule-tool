@@ -23,11 +23,8 @@ class Snort(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.show()
         self.index = 0
-        self.packets = rdpcap("test.cap")
-        self.comboBoxes = [self.ui.srcCombo, self.ui.srcPortCombo, self.ui.destCombo, self.ui.destPortCombo]
-        self.ui.packetBox.setRange(1, len(self.packets))
         self.ui.packetBox.valueChanged.connect(self.changePacket)
-        self.readPacket()
+        self.ui.actionOpen.triggered.connect(self.openPCAP)
 
     def changePacket(self):
         self.index = self.ui.packetBox.value() - 1
@@ -62,6 +59,15 @@ class Snort(QtWidgets.QMainWindow):
         for combo in self.comboBoxes:
             combo.setCurrentIndex(0)
         self.ui.ruleText.appendPlainText(self.buildRule())
+
+    def openPCAP(self):
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open PCAP',filter='Packet Captures (*.cap *.pcap)')
+        if filename:
+            self.file = filename[0]
+            self.packets = rdpcap(self.file)
+            self.comboBoxes = [self.ui.srcCombo, self.ui.srcPortCombo, self.ui.destCombo, self.ui.destPortCombo]
+            self.ui.packetBox.setRange(1, len(self.packets))
+            self.readPacket()
 
     def clearAll(self):
         for combo in self.comboBoxes:
