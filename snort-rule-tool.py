@@ -15,7 +15,7 @@ def dumpString(src, length=16):
        chars = src[i:i+length]
        hex = ' '.join(["%02x" % ord(x) for x in chars])
        printable = ''.join(["%s" % ((ord(x) <= 127 and FILTER[ord(x)]) or '.') for x in chars])
-       result.append(["%04x" % (i,), "%-*s" % (length*3, hex), "%s" % (printable,)])
+       result.append(["%-*s" % (length*3, hex), "%s" % (printable,)])
     return result
 
 class Snort(QtWidgets.QMainWindow):
@@ -29,31 +29,117 @@ class Snort(QtWidgets.QMainWindow):
         self.ui.packetBox.valueChanged.connect(self.changePacket)
         self.ui.actionOpen.triggered.connect(self.openPCAP)
         self.ui.contentEdit.textChanged.connect(self.contentChanged)
+        self.ui.flowCheck.stateChanged.connect(self.flowChecked)
+        self.ui.streamButton.clicked.connect(self.assembleStream)
+        self.ui.flowCombo.currentTextChanged.connect(self.buildRule)
+        self.ui.protoCombo.currentTextChanged.connect(self.buildRule)
+        self.ui.srcCombo.currentTextChanged.connect(self.buildRule)
+        self.ui.srcPortCombo.currentTextChanged.connect(self.buildRule)
+        self.ui.dirCombo.currentTextChanged.connect(self.buildRule)
+        self.ui.destCombo.currentTextChanged.connect(self.buildRule)
+        self.ui.destPortCombo.currentTextChanged.connect(self.buildRule)
+        self.streams = []
 
     def changePacket(self):
         self.index = self.ui.packetBox.value() - 1
         self.readPacket()
 
+    def findStreams(self):
+        tcp_streams = self.packets.filter(lambda p: p.haslayer(TCP))
+        self.streams = []
+
+        for syn in tcp_streams.filter(lambda p: p[TCP].flags & 0x02):
+            for synack in tcp_streams.filter(lambda p: p[TCP].flags & 0x12 and p[TCP].ack == syn.seq + 1):
+                ack = tcp_streams.filter(lambda p: p[TCP].flags & 0x10 and p[TCP].ack == synack.seq + 1)
+                if ack:
+                    srcport = syn[TCP].sport
+                    dstport = syn[TCP].dport
+                    L3 = IP
+                    try:
+                        #try underlayer
+                        foot = syn[TCP].underlayer
+                        srcip = foot.src
+                        dstip = foot.dst
+                        if type(foot) == IPv6:
+                            L3 = IPv6
+                    except:
+                        #try other, but upper layer
+                        if IPv6 in syn:
+                            srcip = syn[IPv6].src
+                            dstip = syn[IPv6].dst
+                            L3 = IPv6
+                        elif IP in pkt:
+                            srcip = syn[IP].src
+                            dstip = syn[IP].dst
+                        else:
+                            continue
+                    ip_pair = (srcip,dstip)
+                    port_pair = (srcport,dstport)
+                    filtered_stream = tcp_streams.filter(lambda p: p[TCP].dport in port_pair and \
+                                                                   p[TCP].sport in port_pair and \
+                                                                   p[L3].src in ip_pair and \
+                                                                   p[L3].dst in ip_pair)
+                    assembled_stream = [syn,synack,ack[0]]
+                    while True:
+                        client_next_seq = assembled_stream[-1][TCP].seq
+                        server_next_seq = assembled_stream[-1][TCP].ack
+                        next = filtered_stream.filter(lambda p: p.seq in (client_next_seq,server_next_seq) and \
+                                                                not p in assembled_stream)
+                        if not next:
+                            break
+                        for pkt in next:
+                            assembled_stream.append(pkt)
+                    self.streams.append(PacketList(assembled_stream))
+
+    def assembleStream(self):
+        pkt = self.packets[self.index]
+        self.ui.hexColumn.clear()
+        self.ui.textColumn.clear()
+        for stream in self.streams:
+            if pkt in stream:
+                thisStream = stream
+                break
+        streamText = "".join([str(packet) for packet in thisStream])
+        payload = dumpString(streamText)
+        for line in payload:
+            self.ui.hexColumn.appendPlainText(line[0])
+            self.ui.textColumn.appendPlainText(line[1])
+
     def readPacket(self):
         self.clearAll()
         pkt = self.packets[self.index]
-        test = dumpString(str(pkt))
-        for line in test:
-            self.ui.lineColumn.appendPlainText(line[0])
-            self.ui.hexColumn.appendPlainText(line[1])
-            self.ui.textColumn.appendPlainText(line[2])
+        payload = dumpString(str(pkt))
+        for line in payload:
+            self.ui.hexColumn.appendPlainText(line[0])
+            self.ui.textColumn.appendPlainText(line[1])
         if IP in pkt:
             self.ui.protoCombo.setCurrentText("ip")
             self.ui.srcCombo.insertItem(0, pkt[IP].src)
             self.ui.destCombo.insertItem(0,pkt[IP].dst)
+            srcip = pkt[IP].src
         if IPv6 in pkt:
                 self.ui.protoCombo.setCurrentText("ip")
                 self.ui.srcCombo.insertItem(0, pkt[IPv6].src)
                 self.ui.destCombo.insertItem(0,pkt[IPv6].dst)
+                srcip = pkt[IPv6].src
         if TCP in pkt:
             self.ui.protoCombo.setCurrentText("tcp")
             self.ui.srcPortCombo.insertItem(0, str(pkt[TCP].sport))
             self.ui.destPortCombo.insertItem(0, str(pkt[TCP].dport))
+            for stream in self.streams:
+                if pkt in stream:
+                    self.ui.flowCheck.setChecked(True)
+                    self.ui.streamButton.setEnabled(True)
+                    client = stream[0]
+                    if IP in client:
+                        layer = IP
+                    else:
+                        layer = IPv6
+                    if srcip == client[layer].src:
+                        self.ui.flowCombo.setCurrentText("to_server")
+                    elif srcip == client[layer].dst:
+                        self.ui.flowCombo.setCurrentText("to_client")
+
         if UDP in pkt:
             self.ui.protoCombo.setCurrentText("udp")
             self.ui.srcPortCombo.insertItem(0, str(pkt[UDP].sport))
@@ -62,13 +148,14 @@ class Snort(QtWidgets.QMainWindow):
             self.ui.protoCombo.setCurrentText("icmp")
         for combo in self.comboBoxes:
             combo.setCurrentIndex(0)
-        self.ui.ruleText.appendPlainText(self.buildRule())
+        self.buildRule()
 
     def openPCAP(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open PCAP',filter='Packet Captures (*.cap *.pcap)')
         if filename:
             self.file = filename[0]
             self.packets = rdpcap(self.file)
+            self.findStreams()
             self.comboBoxes = [self.ui.srcCombo, self.ui.srcPortCombo, self.ui.destCombo, self.ui.destPortCombo]
             self.ui.packetBox.setRange(1, len(self.packets))
             self.readPacket()
@@ -94,21 +181,34 @@ class Snort(QtWidgets.QMainWindow):
             combo.clear()
             combo.addItem("any")
         self.ui.destPortCombo.addItem("any")
-        self.ui.lineColumn.clear()
         self.ui.hexColumn.clear()
         self.ui.textColumn.clear()
         self.ui.ruleText.clear()
+        self.ui.contentEdit.clear()
+        self.ui.flowCheck.setChecked(False)
+        self.ui.flowCombo.setCurrentText("established")
+        self.ui.flowCombo.setEnabled(False)
+        self.ui.streamButton.setEnabled(False)
+
+    def flowChecked(self):
+        self.ui.flowCombo.setEnabled(self.ui.flowCheck.isChecked())
+        self.buildRule()
 
     def buildRule(self):
-        rule = "%s %s %s %s %s %s %s {msg: 'placeholder text'; sid: 1000000}" % (
+        self.ui.ruleText.clear()
+        options = ""
+        if self.ui.flowCheck.isChecked():
+            options += "flow: %s;" % (self.ui.flowCombo.currentText(), )
+        rule = "%s %s %s %s %s %s %s {%s}" % (
                         self.ui.actionCombo.currentText(),
                         self.ui.protoCombo.currentText(),
                         self.ui.srcCombo.currentText(),
                         self.ui.srcPortCombo.currentText(),
                         self.ui.dirCombo.currentText(),
                         self.ui.destCombo.currentText(),
-                        self.ui.destPortCombo.currentText())
-        return rule
+                        self.ui.destPortCombo.currentText(),
+                        options)
+        self.ui.ruleText.appendPlainText(rule)
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
