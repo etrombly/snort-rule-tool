@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1003</width>
+    <height>652</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -223,7 +223,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>503</y>
+      <y>550</y>
       <width>711</width>
       <height>31</height>
      </rect>
@@ -362,8 +362,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>40</y>
+      <x>320</x>
+      <y>0</y>
       <width>89</width>
       <height>35</height>
      </rect>
@@ -372,13 +372,179 @@
      <string>Build Stream</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="depthCheck">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>510</y>
+      <width>71</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Depth</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="depthEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>500</y>
+      <width>61</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="offsetCheck">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>510</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Offset</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="offsetEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>500</y>
+      <width>61</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="distanceCheck">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>510</y>
+      <width>91</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Distance</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="distanceEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>500</y>
+      <width>61</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="withinCheck">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>510</y>
+      <width>93</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Within</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="withinEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>500</y>
+      <width>61</width>
+      <height>33</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="nocaseCheck">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>510</y>
+      <width>93</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Nocase</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="contentList">
+    <property name="geometry">
+     <rect>
+      <x>740</x>
+      <y>80</y>
+      <width>251</width>
+      <height>331</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>740</x>
+      <y>60</y>
+      <width>91</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Content Rules</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ruleRemoveButton">
+    <property name="geometry">
+     <rect>
+      <x>900</x>
+      <y>410</y>
+      <width>89</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Remove</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="addRuleButton">
+    <property name="geometry">
+     <rect>
+      <x>810</x>
+      <y>410</y>
+      <width>89</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Add</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1003</width>
      <height>31</height>
     </rect>
    </property>
