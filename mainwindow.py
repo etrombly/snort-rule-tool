@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Thu Feb 19 06:26:03 2015
+# Created: Fri Feb 20 21:11:09 2015
 #      by: PyQt5 UI code generator 5.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -29,6 +29,8 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setFamily("Monospace")
         self.textColumn.setFont(font)
+        self.textColumn.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.textColumn.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.textColumn.setReadOnly(True)
         self.textColumn.setObjectName("textColumn")
         self.actionCombo = QtWidgets.QComboBox(self.centralwidget)

@@ -28,6 +28,13 @@ class Snort(QtWidgets.QMainWindow):
         self.index = 0
         self.comboBoxes = [self.ui.srcCombo, self.ui.srcPortCombo, self.ui.destCombo, self.ui.destPortCombo]
         self.defaultFmt = self.ui.hexColumn.currentCharFormat()
+
+        #setup scrollbars to be synced
+        self.hexSlider = self.ui.hexColumn.verticalScrollBar()
+        self.textSlider = self.ui.textColumn.verticalScrollBar()
+        self.hexSlider.valueChanged.connect(self.syncScroll)
+        self.textSlider.valueChanged.connect(self.syncScroll)
+
         self.ui.packetBox.valueChanged.connect(self.changePacket)
         self.ui.actionOpen.triggered.connect(self.openPCAP)
         self.ui.contentEdit.textChanged.connect(self.contentChanged)
@@ -42,6 +49,10 @@ class Snort(QtWidgets.QMainWindow):
         self.ui.destCombo.currentTextChanged.connect(self.buildRule)
         self.ui.destPortCombo.currentTextChanged.connect(self.buildRule)
         self.streams = []
+
+    def syncScroll(self, value):
+        self.textSlider.setValue(value)
+        self.hexSlider.setValue(value)
 
     def changePacket(self):
         self.index = self.ui.packetBox.value() - 1
@@ -152,6 +163,7 @@ class Snort(QtWidgets.QMainWindow):
         for combo in self.comboBoxes:
             combo.setCurrentIndex(0)
         self.buildRule()
+        self.textSlider.setValue(0)
 
     def openPCAP(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open PCAP',filter='Packet Captures (*.cap *.pcap)')
@@ -184,7 +196,6 @@ class Snort(QtWidgets.QMainWindow):
         match = False
         origContent = content
         while content:
-            print "searching for %s at %s" % (content, endPointer)
             if content.startswith("|"):
                 if content.count("|") > 1:
                     content = content[1:]
@@ -206,7 +217,6 @@ class Snort(QtWidgets.QMainWindow):
                         end = end + len(search)
                     endPointer = end
                 elif match:
-                    print "resetting"
                     content = origContent
                     match = False
                     start = 0
@@ -214,7 +224,6 @@ class Snort(QtWidgets.QMainWindow):
                     endPointer = matchPointer
                     matchPointer = 0
                 else:
-                    print start, end, matchPointer, endPointer, "'%s'" % (hexContent[endPointer:len(search) + endPointer], ), search
                     break
             else:
                 if "|" in content:
@@ -236,7 +245,6 @@ class Snort(QtWidgets.QMainWindow):
                         end = end + (len(search) * 3) + 1
                     endPointer = end
                 elif match:
-                    print "resetting"
                     content = origContent
                     match = False
                     start = 0
@@ -244,13 +252,10 @@ class Snort(QtWidgets.QMainWindow):
                     endPointer = matchPointer
                     matchPointer = 0
                 else:
-                    print start, end, matchPointer, endPointer, textContent[textPointer:len(search) + textPointer], search
                     break
         if match:
             start = start + (start / 47)
             end = end + (end / 47)
-            print "Highlighting %s to %s" % (start, end)
-            print
             fmt = QtGui.QTextCharFormat()
             fmt.setForeground(QtCore.Qt.red)
             cursor.setPosition(start, QtGui.QTextCursor.MoveAnchor)
